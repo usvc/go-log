@@ -5,8 +5,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	fluenthook "gitlab.com/usvc/modules/go/logging/pkg/hooks/fluentd"
-	"gitlab.com/usvc/modules/go/logging/pkg/logger"
+	fluenthook "gitlab.com/usvc/modules/go/log/pkg/hooks/fluentd"
+	"gitlab.com/usvc/modules/go/log/pkg/logger"
 )
 
 var log *logrus.Logger

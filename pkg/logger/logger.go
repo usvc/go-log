@@ -1,36 +1,21 @@
 package logger
 
 import (
-	"os"
-
 	"github.com/sirupsen/logrus"
+	"gitlab.com/usvc/modules/go/log/lib/utils"
 )
 
-func New(format string) *logrus.Logger {
+func New(formats ...string) *logrus.Logger {
+	format := utils.ParseVariadicString(formats, "text")
+	logger := logrus.New()
+	configureLogger(logger)
 	switch format {
 	case "json":
-		return NewJSONFormattedLogger()
+		logger.SetFormatter(JSONFormatter)
 	case "text":
 		fallthrough
 	default:
-		return NewTextFormattedLogger()
+		logger.SetFormatter(TextFormatter)
 	}
-}
-
-func NewTextFormattedLogger() *logrus.Logger {
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logrus.TraceLevel)
-	logger.SetReportCaller(true)
-	logger.SetFormatter(TextFormatter)
-	return logger
-}
-
-func NewJSONFormattedLogger() *logrus.Logger {
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetLevel(logrus.TraceLevel)
-	logger.SetReportCaller(true)
-	logger.SetFormatter(JSONFormatter)
 	return logger
 }

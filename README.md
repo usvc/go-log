@@ -2,6 +2,18 @@
 
 Everything related to logging for Go applications
 
+# Usage
+
+## Creating a logger
+
+```go
+import (
+  "gitlab.com/usvc/modules/go/log/pkg/logger"
+)
+
+var log = logger.New()
+```
+
 # Runbook
 
 This section is a **work-in-progress**.
