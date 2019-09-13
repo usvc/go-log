@@ -1,0 +1,11 @@
+version: "3.5"
+services:
+  fluent:
+    image: fluent/fluentd:v1.7
+    environment:
+      PORT: "24224"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./config/fluent.conf:/fluentd/etc/fluent.conf
