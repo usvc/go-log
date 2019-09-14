@@ -8,6 +8,7 @@ stages:
 
 pull dependencies:
   stage: init
+  except: ["tags"]
   cache:
     key: refslug_${CI_COMMIT_REF_SLUG}
     policy: pull-push
@@ -20,6 +21,7 @@ pull dependencies:
 
 run examples:
   stage: validate
+  except: ["tags"]
   script:
     - make run_json
     - make run_text
@@ -27,6 +29,7 @@ run examples:
 
 run unit tests:
   stage: validate
+  except: ["tags"]
   artifacts:
     expire_in: 6h
     paths:

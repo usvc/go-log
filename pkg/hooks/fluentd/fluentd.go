@@ -20,13 +20,13 @@ func NewHook(
 	config *HookConfig,
 	logger ...*logrus.Logger,
 ) *Hook {
-
+	hookLogger := log
 	if len(logger) > 0 {
-		log = logger[0]
+		hookLogger = logger[0]
 	}
 	return &Hook{
 		config: config,
-		log:    log,
+		log:    hookLogger,
 		queue:  []*logrus.Entry{},
 	}
 }

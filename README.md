@@ -6,9 +6,9 @@ Everything related to logging for Go applications. The main logger this work is 
 
 Contained in here are three main packages:
 
-- Logger (`import "gitlab.com/usvc/modules/go/log/pkg/logger"`)
-- FluentD Hook (`import "gitlab.com/usvc/modules/go/log/pkg/hooks/fluentd"`)
-- Constants (`import "gitlab.com/usvc/modules/go/log/pkg/constants"`)
+- Logger (`import "github.com/usvc/go-log/pkg/logger"`)
+- FluentD Hook (`import "github.com/usvc/go-log/pkg/hooks/fluentd"`)
+- Constants (`import "github.com/usvc/go-log/pkg/constants"`)
 
 - - -
 
@@ -19,10 +19,12 @@ Contained in here are three main packages:
 
 ```go
 import (
-  "gitlab.com/usvc/modules/go/log/pkg/logger"
+  "github.com/usvc/go-log/pkg/logger"
 )
 
-var log = logger.New()
+var textLogger = logger.New()
+var anoterTextLogger = logger.New("text")
+var jsonLogger = logger.New("json")
 ```
 
 
@@ -33,9 +35,9 @@ var log = logger.New()
 
 ```go
 import (
-  "gitlab.com/usvc/modules/go/log/pkg/logger"
-  "gitlab.com/usvc/modules/go/log/pkg/hooks/fluentd"
-  "gitlab.com/usvc/modules/go/log/pkg/constants"
+  "github.com/usvc/go-log/pkg/logger"
+  "github.com/usvc/go-log/pkg/hooks/fluentd"
+  "github.com/usvc/go-log/pkg/constants"
 )
 
 var log = logger.New()
@@ -49,12 +51,6 @@ fluentHook := fluentd.NewHook(&fluentd.HookConfig{
 }
 log.AddHook(fluentHook)
 ```
-
-- - -
-
-# License
-
-This project is licensed under the [MIT license](./LICENSE).
 
 - - -
 
@@ -118,10 +114,12 @@ The following environment variables should be set in the CI/CD settings under Va
 
 | Key | Description | Example |
 | --- | --- | --- |
-| `DEPLOY_KEY` | The base64 encoded private key that corresponds to the repository URL specified in `NEXT_REPO` | *(Output of `cat ~/.ssh/id_rsa | base64 -w 0`)* |
+| `DEPLOY_KEY` | The base64 encoded private key that corresponds to the repository URL specified in `NEXT_REPO` | *(Output of `cat ~/.ssh/id_rsa \| base64 -w 0`)* |
 | `NEXT_REPO_HOSTNAME` | The hostname of the `NEXT_REPO_URL` so that the domain's key can be verified | `github.com` |
 | `NEXT_REPO_URL` | The SSH clone URL of the repository to push to in the `release` stage of the pipeline | `git@github.com:usvc/go-log.git` |
 
 - - -
 
-# Cheers
+# License
+
+This project is licensed under the [MIT license](./LICENSE).

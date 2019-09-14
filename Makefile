@@ -13,7 +13,7 @@ fluentd:
 	docker-compose -f ./tests/docker-compose.yml up
 
 test:
-	go test -coverprofile c.out ./...
+	go test -coverprofile c.out ./... -v
 
 .ssh:
 	@mkdir -p ./.ssh

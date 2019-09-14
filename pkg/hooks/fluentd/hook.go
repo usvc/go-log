@@ -3,6 +3,7 @@ package fluentd
 import (
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/sirupsen/logrus"
+	constants "gitlab.com/usvc/modules/go/log/pkg/constants"
 )
 
 // Hook implements the logrus.Hook interface
@@ -65,7 +66,7 @@ func (hook *Hook) send(data map[string]interface{}) error {
 	defer hook.log.Trace("ended")
 	hook.log.Trace("called")
 	level := "log"
-	if levelProperty, ok := data["level"].(string); ok {
+	if levelProperty, ok := data[constants.FieldLevel].(string); ok {
 		level = levelProperty
 	}
 	go hook.post(level, data)

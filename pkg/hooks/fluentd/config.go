@@ -69,15 +69,11 @@ func createFluentConfig(config *HookConfig) fluent.Config {
 	if len(config.Host) > 0 {
 		fluentConfig.FluentHost = config.Host
 	}
-	if config.Port == 0 {
+	if config.Port > 0 {
 		fluentConfig.FluentPort = config.Port
 	}
 	if len(config.Tag) > 0 {
 		fluentConfig.TagPrefix = config.Tag
 	}
-	return fluent.Config{
-		FluentHost: config.Host,
-		FluentPort: config.Port,
-		TagPrefix:  config.Tag,
-	}
+	return fluentConfig
 }
