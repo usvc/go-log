@@ -60,10 +60,14 @@ to github:
   stage: publish
   image: usvc/semver:gitlab-latest
   before_script:
-    - mkdir -p ~/.ssh
-    - 'printf -- "${DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa'
-    - chmod 600 -R ~/.ssh/id_rsa
-    - ssh-keyscan -t rsa ${NEXT_REPO_HOSTNAME} >> ~/.ssh/known_hosts
+    - if [ "${DEPLOY_KEY}" = "" ]; then
+        exit 1;
+      else
+        mkdir -p ~/.ssh;
+        'printf -- "${DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa';
+        chmod 600 -R ~/.ssh/id_rsa;
+        ssh-keyscan -t rsa ${NEXT_REPO_HOSTNAME} >> ~/.ssh/known_hosts;
+      fi;
   script:
     - git config --global user.email "usvc.semver@usvc.dev"
     - git config --global user.name "usvc_publisher"
