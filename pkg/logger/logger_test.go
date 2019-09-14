@@ -15,9 +15,17 @@ func TestLoggerSuite(t *testing.T) {
 	suite.Run(t, &LoggerTest{})
 }
 
-func (c *LoggerTest) Test_New_Text() {
+func (c *LoggerTest) Test_New_default() {
 	var log bytes.Buffer
 	textLogger := New()
+	textLogger.SetOutput(&log)
+	textLogger.Print("hello world")
+	c.Contains(log.String(), `@level=info @message="hello world"`)
+}
+
+func (c *LoggerTest) Test_New_Text() {
+	var log bytes.Buffer
+	textLogger := New("text")
 	textLogger.SetOutput(&log)
 	textLogger.Print("hello world")
 	c.Contains(log.String(), `@level=info @message="hello world"`)

@@ -8,7 +8,7 @@ import (
 )
 
 var TextFormatter = &logrus.TextFormatter{
-	CallerPrettyfier: callerPrettyfier,
+	CallerPrettyfier: callerPrettyfierSimplified,
 	DisableSorting:   false,
 	FieldMap:         constants.DefaultFieldMap,
 	FullTimestamp:    true,

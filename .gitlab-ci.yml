@@ -1,0 +1,33 @@
+image: usvc/ci-golang:gitlab-latest
+
+stages:
+  - dependencies
+  - validation
+
+pull dependencies:
+  stage: dependencies
+  cache:
+    key: refslug_${CI_COMMIT_REF_SLUG}
+    policy: pull-push
+  artifacts:
+    expire_in: 1h
+    paths:
+      - ./vendor
+  script:
+    - go mod vendor
+
+run examples:
+  stage: validation
+  script:
+    - make run_json
+    - make run_text
+    - make run_fluentd
+
+run unit tests:
+  stage: validation
+  artifacts:
+    expire_in: 6h
+    paths:
+      - ./c.out
+  script:
+    - make test

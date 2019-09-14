@@ -5,8 +5,13 @@ import (
 
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/sirupsen/logrus"
+
+	"gitlab.com/usvc/modules/go/log/pkg/constants"
 )
 
+// HookConfig stores the configuration for the Hook class
+// and contains properties that will be used to initialise
+// the Hook
 type HookConfig struct {
 	// Host contains the hostname of the fluentd service
 	//
@@ -50,15 +55,29 @@ type HookConfig struct {
 //
 // ref: https://github.com/fluent/fluent-logger-golang/blob/master/fluent/fluent.go
 func createFluentConfig(config *HookConfig) fluent.Config {
-	return fluent.Config{
-		FluentHost:   config.Host,
-		FluentPort:   config.Port,
+	fluentConfig := fluent.Config{
+		FluentHost:   constants.DefaultFluentDHost,
+		FluentPort:   constants.DefaultFluentDPort,
 		MaxRetry:     100,
 		MaxRetryWait: 1000,
 		RequestAck:   false,
 		RetryWait:    1000,
-		TagPrefix:    config.Tag,
-		Timeout:      5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		TagPrefix:    constants.DefaultFluentDTag,
+		Timeout:      constants.DefaultFluentDTimeout,
+		WriteTimeout: constants.DefaultFluentDTimeout,
+	}
+	if len(config.Host) > 0 {
+		fluentConfig.FluentHost = config.Host
+	}
+	if config.Port == 0 {
+		fluentConfig.FluentPort = config.Port
+	}
+	if len(config.Tag) > 0 {
+		fluentConfig.TagPrefix = config.Tag
+	}
+	return fluent.Config{
+		FluentHost: config.Host,
+		FluentPort: config.Port,
+		TagPrefix:  config.Tag,
 	}
 }
