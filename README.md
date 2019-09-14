@@ -1,5 +1,7 @@
 # Log
 
+[![pipeline status](https://gitlab.com/usvc/modules/go/log/badges/master/pipeline.svg)](https://gitlab.com/usvc/modules/go/log/commits/master)
+
 Everything related to logging for Go applications. The main logger this work is based on is [`sirupsen/logrus`](https://github.com/sirupsen/logrus) and packages in this repository provides a standardised, best-practices logger.
 
 Contained in here are three main packages:
