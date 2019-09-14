@@ -100,6 +100,28 @@ To run the tests:
 make test
 ```
 
+
+## Releasing to GitHub
+
+The GitHub URL for this repository is [https://github.com/usvc/go-log](https://github.com/usvc/go-log). The pipeline is configured to automatically push to this repository. Should the keys need to be regenerated, the `.ssh` Makefile recipe contains the commands required to generate the keys in a `.ssh` directory:
+
+```sh
+make .ssh
+```
+
+Inside the `.ssh` directory, copy the contents of `id_rsa.b64` and paste it as the `DEPLOY_KEY` CI/CD variable. Then copy the contents of `id_rsa.pub` and paste that as a deploy key with write access in the GitHub repository.
+
+
+## Continuous integration/delivery (CI/CD) pipeline configuration
+
+The following environment variables should be set in the CI/CD settings under Variables:
+
+| Key | Description | Example |
+| --- | --- | --- |
+| `DEPLOY_KEY` | The base64 encoded private key that corresponds to the repository URL specified in `NEXT_REPO` | *(Output of `cat ~/.ssh/id_rsa | base64 -w 0`)* |
+| `NEXT_REPO_HOSTNAME` | The hostname of the `NEXT_REPO_URL` so that the domain's key can be verified | `github.com` |
+| `NEXT_REPO_URL` | The SSH clone URL of the repository to push to in the `release` stage of the pipeline | `git@github.com:usvc/go-log.git` |
+
 - - -
 
 # Cheers

@@ -1,11 +1,13 @@
 image: usvc/ci-golang:gitlab-latest
 
 stages:
-  - dependencies
-  - validation
+  - init
+  - validate
+  - release
+  - publish
 
 pull dependencies:
-  stage: dependencies
+  stage: init
   cache:
     key: refslug_${CI_COMMIT_REF_SLUG}
     policy: pull-push
@@ -17,17 +19,56 @@ pull dependencies:
     - go mod vendor
 
 run examples:
-  stage: validation
+  stage: validate
   script:
     - make run_json
     - make run_text
     - make run_fluentd
 
 run unit tests:
-  stage: validation
+  stage: validate
   artifacts:
     expire_in: 6h
     paths:
       - ./c.out
   script:
     - make test
+
+version bump:
+  only: ["master"]
+  stage: release
+  image: usvc/semver:gitlab-latest
+  before_script:
+    - if [ "${DEPLOY_KEY}" = "" ]; then
+        exit 1;
+      else
+        mkdir -p ~/.ssh;
+        'printf -- "${DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa';
+        chmod 600 -R ~/.ssh/id_rsa;
+        ssh-keyscan -t rsa gitlab.com >> ~/.ssh/known_hosts;
+      fi;
+  script:
+    - git remote set-url origin "git@gitlab.com:${CI_PROJECT_PATH}.git"
+    - git checkout master
+    - semver bump --git --apply
+    - git push origin master --verbose --tags
+  after_script:
+    - rm -rf ~/.ssh/*
+
+to github:
+  only: ["master"]
+  stage: publish
+  image: usvc/semver:gitlab-latest
+  before_script:
+    - mkdir -p ~/.ssh
+    - 'printf -- "${DEPLOY_KEY}" | base64 -d > ~/.ssh/id_rsa'
+    - chmod 600 -R ~/.ssh/id_rsa
+    - ssh-keyscan -t rsa ${NEXT_REPO_HOSTNAME} >> ~/.ssh/known_hosts
+  script:
+    - git config --global user.email "usvc.semver@usvc.dev"
+    - git config --global user.name "usvc_publisher"
+    - git remote set-url --add --push origin ${NEXT_REPO_URL}
+    - git checkout master
+    - git push -u origin master --tags --force
+  after_script:
+    - rm -rf ~/.ssh/*

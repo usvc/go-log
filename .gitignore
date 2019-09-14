@@ -1,4 +1,5 @@
 # artifacts
+.ssh
 bin
 c.out
 

@@ -14,3 +14,8 @@ fluentd:
 
 test:
 	go test -coverprofile c.out ./...
+
+.ssh:
+	@mkdir -p ./.ssh
+	@ssh-keygen -t rsa -b 4096 -f ./.ssh/id_rsa -N ""
+	@cat ./.ssh/id_rsa | base64 -w 0 > ./.ssh/id_rsa.b64
