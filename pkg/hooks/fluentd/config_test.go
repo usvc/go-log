@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"gitlab.com/usvc/modules/go/log/pkg/constants"
+	"github.com/usvc/go-log/pkg/constants"
 )
 
 type ConfigTest struct {

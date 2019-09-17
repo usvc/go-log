@@ -3,7 +3,7 @@ package fluentd
 import (
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/sirupsen/logrus"
-	constants "gitlab.com/usvc/modules/go/log/pkg/constants"
+	constants "github.com/usvc/go-log/pkg/constants"
 )
 
 // Hook implements the logrus.Hook interface

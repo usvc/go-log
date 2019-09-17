@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gitlab.com/usvc/modules/go/log/pkg/logger"
+	"github.com/usvc/go-log/pkg/logger"
 )
 
 var log = logger.New()

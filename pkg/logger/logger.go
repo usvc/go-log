@@ -2,7 +2,7 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
-	"gitlab.com/usvc/modules/go/log/lib/utils"
+	"github.com/usvc/go-log/lib/utils"
 )
 
 func New(formats ...string) *logrus.Logger {

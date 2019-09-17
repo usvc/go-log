@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-	"gitlab.com/usvc/modules/go/log/pkg/constants"
+	"github.com/usvc/go-log/pkg/constants"
 )
 
 var TextFormatter = &logrus.TextFormatter{

@@ -6,9 +6,9 @@ Example initialization:
 
 	```go
 	import (
-		"gitlab.com/usvc/modules/go/log/pkg/logger"
-		"gitlab.com/usvc/modules/go/log/pkg/hooks/fluentd"
-		"gitlab.com/usvc/modules/go/log/pkg/constants"
+		"github.com/usvc/go-log/pkg/logger"
+		"github.com/usvc/go-log/pkg/hooks/fluentd"
+		"github.com/usvc/go-log/pkg/constants"
 	)
 
 	// ...

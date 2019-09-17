@@ -10,6 +10,8 @@ Contained in here are three main packages:
 - FluentD Hook (`import "github.com/usvc/go-log/pkg/hooks/fluentd"`)
 - Constants (`import "github.com/usvc/go-log/pkg/constants"`)
 
+If you are viewing this on GitHub, the main repository is at [https://gitlab.com/usvc/modules/go/log](https://gitlab.com/usvc/modules/go/log) and this is just a mirror that's easier to reference ([http://github.com/usvc/go-log](http://github.com/usvc/go-log)).
+
 - - -
 
 # Usage
@@ -118,7 +120,9 @@ The following environment variables should be set in the CI/CD settings under Va
 | `NEXT_REPO_HOSTNAME` | The hostname of the `NEXT_REPO_URL` so that the domain's key can be verified | `github.com` |
 | `NEXT_REPO_URL` | The SSH clone URL of the repository to push to in the `release` stage of the pipeline | `git@github.com:usvc/go-log.git` |
 
+
 - - -
+
 
 # License
 
