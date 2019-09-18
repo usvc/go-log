@@ -7,7 +7,7 @@ import (
 	"github.com/fluent/fluent-logger-golang/fluent"
 	"github.com/sirupsen/logrus"
 
-	constants "github.com/usvc/go-log/pkg/constants"
+	"github.com/usvc/go-log/pkg/constants"
 )
 
 // clearQueue clears the current log entry queue by sending all of them at
@@ -48,7 +48,7 @@ func handleInitializationError(err error, hook *Hook) {
 		initialize(hook)
 	} else {
 		hook.log.Errorf("failed to initialize fluentd logger after %v attempts: '%s'", hook.config.InitializeRetryCount, err)
-		hook.log.Infof("following %v log entries could not be sent to fluentd:", len(hook.queue))
+		hook.log.Warnf("following %v log entries could not be sent to fluentd:", len(hook.queue))
 		for i := 0; i < len(hook.queue); i++ {
 			hook.log.Infof("%v", formatEntry(hook.queue[i]))
 		}
@@ -76,10 +76,10 @@ func initialize(hook *Hook) {
 		hook.instance = nil
 		panic(err)
 	}
-	hook.log.Debug("fluentd initialized successfully")
+	hook.log.Info("fluentd successfully initialized")
 	hook.send(map[string]interface{}{
-		"level":   "debug",
-		"message": "fluentd initialized successfully",
+		constants.FieldLevel:   "debug",
+		constants.FieldMessage: "fluentd initialized successfully",
 	})
 	hook.isInitialising = false
 	if len(hook.queue) > 0 {
