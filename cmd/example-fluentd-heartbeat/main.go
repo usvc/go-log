@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -31,6 +32,25 @@ var id = 0
 
 func main() {
 	done := make(chan bool, 1)
+	go func(tick <-chan time.Time) {
+		for {
+			<-tick
+			var stats runtime.MemStats
+			runtime.ReadMemStats(&stats)
+			log.Debugf(
+				"\n--------------------------\n"+
+					"\nalloc          : %v kB\n"+
+					"total alloc    : %v kB\n"+
+					"system         : %v MiB\n"+
+					"goroutine count: %v\n"+
+					"\n--------------------------\n",
+				stats.Alloc/1024,
+				stats.TotalAlloc/1024,
+				stats.Sys/1024/1024,
+				runtime.NumGoroutine(),
+			)
+		}
+	}(time.Tick(1 * time.Second))
 	go func(tick <-chan time.Time) {
 		for {
 			<-tick
