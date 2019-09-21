@@ -23,7 +23,7 @@ type Hook struct {
 	// log is an additional logger to pass in that the hook
 	// will use to send status updates if it cannot connect to a
 	// fluentd service
-	log *logrus.Logger
+	log Logger
 
 	// queue is used to store log entries that reach the hook before
 	// fluentd is ready or when the connection to a fluentd service
@@ -35,6 +35,7 @@ type Hook struct {
 
 // Levels implements the logrus.Hook interface
 func (hook *Hook) Levels() []logrus.Level {
+	defer hook.log.Trace("ended")
 	hook.log.Trace("called")
 	return hook.config.Levels
 }
