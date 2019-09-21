@@ -21,10 +21,9 @@ func (s *FluentDTests) TestNewHook_createsQueue() {
 	s.NotNil(hook.queue)
 }
 
-func (s *FluentDTests) TestNewHook_usesDefaultLog() {
+func (s *FluentDTests) TestNewHook_createsLogIfNotProvided() {
 	hook := NewHook(&HookConfig{})
-	expectedLogPointer := fmt.Sprintf("%p", log)
-	s.Equal(expectedLogPointer, fmt.Sprintf("%p", hook.log))
+	s.NotNil(hook.log)
 }
 
 func (s *FluentDTests) TestNewHook_usesInputConfig() {
@@ -36,9 +35,7 @@ func (s *FluentDTests) TestNewHook_usesInputConfig() {
 
 func (s *FluentDTests) TestNewHook_usesInputLog() {
 	logger := &logrus.Logger{}
-	hook := NewHook(&HookConfig{}, logger)
-	defaultLogPointer := fmt.Sprintf("%p", log)
 	expectedLogPointer := fmt.Sprintf("%p", logger)
-	s.NotEqual(defaultLogPointer, fmt.Sprintf("%p", hook.log))
+	hook := NewHook(&HookConfig{}, logger)
 	s.Equal(expectedLogPointer, fmt.Sprintf("%p", hook.log))
 }

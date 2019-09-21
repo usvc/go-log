@@ -21,6 +21,8 @@ func (s *ConfigTest) Test_createFluentConfig_defaults() {
 	s.Equal(constants.DefaultFluentDHost, fluentConfig.FluentHost)
 	s.Equal(constants.DefaultFluentDPort, fluentConfig.FluentPort)
 	s.Equal(constants.DefaultFluentDTag, fluentConfig.TagPrefix)
+	s.Equal(constants.DefaultFluentDTimeout, fluentConfig.Timeout)
+	s.Equal(constants.DefaultFluentDTimeout, fluentConfig.WriteTimeout)
 }
 
 func (s *ConfigTest) Test_createFluentConfig_nonDefaults() {

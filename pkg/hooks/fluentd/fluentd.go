@@ -6,11 +6,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// log is the basic default logger to be used if no logger is provided
-var log = &logrus.Logger{
-	Out:       os.Stderr,
-	Formatter: &logrus.TextFormatter{},
-	Level:     logrus.WarnLevel,
+// createDefaultLogger creates the basic default logger to be used if
+// no logger is provided
+func createDefaultLogger() *logrus.Logger {
+	return &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: &logrus.TextFormatter{},
+		Level:     logrus.WarnLevel,
+	}
 }
 
 // NewHook instantiates a new minimal fluentd hook given a configuration
@@ -18,11 +21,13 @@ var log = &logrus.Logger{
 // built one will be used)
 func NewHook(
 	config *HookConfig,
-	logger ...*logrus.Logger,
+	logger ...Logger,
 ) *Hook {
-	hookLogger := log
+	var hookLogger Logger
 	if len(logger) > 0 {
 		hookLogger = logger[0]
+	} else {
+		hookLogger = createDefaultLogger()
 	}
 	return &Hook{
 		config: config,
