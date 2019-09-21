@@ -6,13 +6,15 @@ Everything related to logging for Go applications. The main logger this work is 
 
 Contained in here are three main packages:
 
-- Logger (`import "github.com/usvc/go-log/pkg/logger"`)
-- FluentD Hook (`import "github.com/usvc/go-log/pkg/hooks/fluentd"`)
-- Constants (`import "github.com/usvc/go-log/pkg/constants"`)
+- Logger (`"github.com/usvc/go-log/pkg/logger"`)
+- FluentD Hook (`"github.com/usvc/go-log/pkg/hooks/fluentd"`)
+- Constants (`"github.com/usvc/go-log/pkg/constants"`)
 
 If you are viewing this on GitHub, the main repository is at [https://gitlab.com/usvc/modules/go/log](https://gitlab.com/usvc/modules/go/log) and this is just a mirror that's easier to reference ([http://github.com/usvc/go-log](http://github.com/usvc/go-log)).
 
+
 - - -
+
 
 # Usage
 
@@ -54,7 +56,25 @@ fluentHook := fluentd.NewHook(&fluentd.HookConfig{
 log.AddHook(fluentHook)
 ```
 
+
 - - -
+
+
+# Configuration
+
+## Fluent Hook
+
+| Key | Example | Description |
+| --- | --- | --- |
+| Host | `"fluentd.monitoring.svc.cluster.local"` | Host of the FluentD service |
+| Port | `24224` | Port which the FluentD service is listening on |
+| InitializeRetryCount | `10` | How many times the logger should attempt a connection with the FluentD service before giving up. To never give up, set this value to `-1` |
+| Levels | `[]logrus.Level{}` | Sets the levels for which the hook will be activated |
+| Tag | `"application"` | The tag which will be used as the primary tag for logs sent to FluentD |
+
+
+- - -
+
 
 # Development Runbook
 
