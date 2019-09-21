@@ -17,9 +17,12 @@ func clearQueue(hook *Hook) {
 	hook.log.Trace("called")
 	for i := 0; i < len(hook.queue); i++ {
 		hook.log.Infof("sending queued message [%v/%v]", i+1, len(hook.queue))
-		hook.send(formatEntry(hook.queue[i]))
+		if err := hook.send(formatEntry(hook.queue[i])); err != nil {
+			hook.log.Debugf("failed to send queued message '%v'", hook.queue[i])
+		} else {
+			hook.queue = spliceLogEntry(hook.queue, uint(i))
+		}
 	}
-	hook.queue = []*logrus.Entry{}
 }
 
 // formatEntry outputs a raw data object that can be sent to hook.send
@@ -41,8 +44,8 @@ func formatEntry(entry *logrus.Entry) map[string]interface{} {
 
 // handleInitializationError defines the retry logic for initialize()
 func handleInitializationError(err error, hook *Hook) {
-	if hook.config.InitializeRetryCount > hook.retryCount {
-		hook.log.Warnf("unable to initialize fluentd logger: '%s'", err)
+	if hasNoRetryLimit(hook) || !hasReachedRetryLimit(hook) {
+		hook.log.Warnf("unable to initialize fluentd logger (attempt %v/%v): '%s'", hook.retryCount, hook.config.InitializeRetryCount, err)
 		hook.log.Debugf("attempting again in %v...", hook.config.InitializeRetryInterval)
 		<-time.After(hook.config.InitializeRetryInterval)
 		initialize(hook)
@@ -56,6 +59,18 @@ func handleInitializationError(err error, hook *Hook) {
 	}
 }
 
+// hasReachedRetryLimit returns true if there are still retries left
+func hasReachedRetryLimit(hook *Hook) bool {
+	return hook.retryCount > hook.config.InitializeRetryCount
+}
+
+// hasNoRetryLimit returns true if the HookConfig.InitializeRetryCount property
+// is less than 0, which indicates that we should never stop trying to
+// reconnect to a FluentD service
+func hasNoRetryLimit(hook *Hook) bool {
+	return hook.config.InitializeRetryCount < 0
+}
+
 // initialize is a controller method that creates a fluent logger
 // instance and populates the .instance property if a successful
 // connection to a fluentd service is established
@@ -67,7 +82,7 @@ func initialize(hook *Hook) {
 		}
 		hook.log.Trace("ended")
 	}()
-	hook.log.Debugf("attempting to initialize (%v attempts left)", hook.config.InitializeRetryCount-hook.retryCount)
+	hook.log.Debugf("attempting to initialize (attempt: %v/%v)", hook.retryCount, hook.config.InitializeRetryCount)
 	hook.retryCount++
 	hook.isInitialising = true
 	var err error
@@ -85,4 +100,8 @@ func initialize(hook *Hook) {
 	if len(hook.queue) > 0 {
 		clearQueue(hook)
 	}
+}
+
+func spliceLogEntry(entries []*logrus.Entry, index uint) []*logrus.Entry {
+	return append(entries[:index], entries[index+1:]...)
 }
