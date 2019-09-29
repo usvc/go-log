@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
+	"github.com/usvc/go-log/pkg/constants"
 )
 
 type UtilsTests struct {
@@ -14,6 +15,36 @@ type UtilsTests struct {
 
 func TestUtils(t *testing.T) {
 	suite.Run(t, &UtilsTests{})
+}
+
+func (s *UtilsTests) Test_formatEntry() {
+	inputEntry := logrus.Entry{
+		Data: logrus.Fields{
+			"field_one": "_field_one",
+		},
+		Level:   logrus.TraceLevel,
+		Message: "__message",
+	}
+	formattedEntry := formatEntry(&inputEntry)
+	s.Equal(map[string]interface{}{
+		"field_one": "_field_one",
+	}, formattedEntry[constants.FieldData])
+	s.Equal("trace", formattedEntry[constants.FieldLevel])
+	s.Equal("__message", formattedEntry[constants.FieldMessage])
+}
+
+func (s *UtilsTests) Test_hasReachedRetryLimit() {
+	hookConfig := HookConfig{InitializeRetryCount: 1}
+	hookExceeded := Hook{config: &hookConfig, retryCount: 2}
+	hookNotExceeded := Hook{config: &hookConfig, retryCount: 1}
+	s.Equal(true, hasReachedRetryLimit(&hookExceeded))
+	s.Equal(false, hasReachedRetryLimit(&hookNotExceeded))
+}
+
+func (s *UtilsTests) Test_hasNoRetryLimit() {
+	hookConfig := HookConfig{InitializeRetryCount: -1}
+	hook := Hook{config: &hookConfig}
+	s.Equal(true, hasNoRetryLimit(&hook))
 }
 
 func (s *UtilsTests) Test_spliceLogEntry() {

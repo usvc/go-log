@@ -34,6 +34,9 @@ var DefaultHookLevels = []logrus.Level{
 	logrus.FatalLevel,
 }
 
+const DefaultInitializeRetryCount = -1
+const DefaultInitializeRetryInterval = 3 * time.Second
+
 // FieldData defines what the data field should be tagged
 // (applies only for JSONFormatter)
 const FieldData = "@data"

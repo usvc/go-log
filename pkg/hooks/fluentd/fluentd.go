@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/usvc/go-log/pkg/constants"
 )
 
 // createDefaultLogger creates the basic default logger to be used if
@@ -33,5 +35,17 @@ func NewHook(
 		config: config,
 		log:    hookLogger,
 		queue:  []*logrus.Entry{},
+	}
+}
+
+// NewConfig returns a hook configuration with the default configuration
+func NewConfig() *HookConfig {
+	return &HookConfig{
+		Host:                    constants.DefaultFluentDHost,
+		Port:                    constants.DefaultFluentDPort,
+		InitializeRetryCount:    constants.DefaultInitializeRetryCount,
+		InitializeRetryInterval: constants.DefaultInitializeRetryInterval,
+		Levels:                  constants.DefaultHookLevels,
+		Tag:                     constants.DefaultFluentDTag,
 	}
 }

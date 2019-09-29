@@ -69,6 +69,7 @@ log.AddHook(fluentHook)
 | Host | `"fluentd.monitoring.svc.cluster.local"` | Host of the FluentD service |
 | Port | `24224` | Port which the FluentD service is listening on |
 | InitializeRetryCount | `10` | How many times the logger should attempt a connection with the FluentD service before giving up. To never give up, set this value to `-1` |
+| InitializeRetryInterval | `5 * time.Second` | Duration between which initialization attempts should be made to the FluentD service |
 | Levels | `[]logrus.Level{}` | Sets the levels for which the hook will be activated |
 | Tag | `"application"` | The tag which will be used as the primary tag for logs sent to FluentD |
 

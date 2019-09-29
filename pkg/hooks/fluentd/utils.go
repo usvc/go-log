@@ -27,13 +27,15 @@ func clearQueue(hook *Hook) {
 
 // formatEntry outputs a raw data object that can be sent to hook.send
 func formatEntry(entry *logrus.Entry) map[string]interface{} {
+	entryData := map[string]interface{}{}
+	for key, value := range entry.Data {
+		entryData[key] = value
+	}
 	data := map[string]interface{}{
+		constants.FieldData:      entryData,
 		constants.FieldLevel:     entry.Level.String(),
 		constants.FieldMessage:   entry.Message,
 		constants.FieldTimestamp: entry.Time.UTC().Format(time.RFC822Z),
-	}
-	for key, value := range entry.Data {
-		data[key] = value
 	}
 	if entry.Caller != nil {
 		data[constants.FieldFile] = fmt.Sprintf("%s:%v", entry.Caller.File, entry.Caller.Line)
@@ -99,6 +101,8 @@ func initialize(hook *Hook) {
 	}
 }
 
+// spliceLogEntry removes the index :index from the slice of log entries
+// provided (:entries)
 func spliceLogEntry(entries []*logrus.Entry, index uint) []*logrus.Entry {
 	return append(entries[:index], entries[index+1:]...)
 }
