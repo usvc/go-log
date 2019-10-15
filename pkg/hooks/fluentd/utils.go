@@ -35,7 +35,7 @@ func formatEntry(entry *logrus.Entry) map[string]interface{} {
 		constants.FieldData:      entryData,
 		constants.FieldLevel:     entry.Level.String(),
 		constants.FieldMessage:   entry.Message,
-		constants.FieldTimestamp: entry.Time.UTC().Format(time.RFC822Z),
+		constants.FieldTimestamp: entry.Time.UTC().Format(constants.TimestampFormat),
 	}
 	if entry.Caller != nil {
 		data[constants.FieldFile] = fmt.Sprintf("%s:%v", entry.Caller.File, entry.Caller.Line)
@@ -92,8 +92,9 @@ func initialize(hook *Hook) {
 	}
 	hook.debugf("fluentd successfully initialized")
 	hook.send(map[string]interface{}{
-		constants.FieldLevel:   "debug",
-		constants.FieldMessage: "fluentd initialized successfully",
+		constants.FieldLevel:     "debug",
+		constants.FieldMessage:   "fluentd initialized successfully",
+		constants.FieldTimestamp: time.Now().Format(constants.TimestampFormat),
 	})
 	hook.isInitialising = false
 	if len(hook.queue) > 0 {
