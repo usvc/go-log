@@ -6,15 +6,17 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/usvc/go-log/pkg/constants"
+	formatters "github.com/usvc/go-log/pkg/formatters/logrus"
 )
 
 // createDefaultLogger creates the basic default logger to be used if
 // no logger is provided
 func createDefaultLogger() *logrus.Logger {
 	return &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: &logrus.TextFormatter{},
-		Level:     logrus.WarnLevel,
+		Formatter:    formatters.Text,
+		Out:          os.Stderr,
+		Level:        logrus.WarnLevel,
+		ReportCaller: true,
 	}
 }
 
