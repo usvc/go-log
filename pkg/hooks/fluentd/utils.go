@@ -10,43 +10,63 @@ import (
 	"github.com/usvc/go-log/pkg/constants"
 )
 
-// clearQueue clears the current log entry queue by sending all of them at
-// once. to run upon successful connection to fluentd
-func clearQueue(hook *Hook) {
-	defer hook.trace("ended")
-	hook.trace("called")
-	for i := 0; i < len(hook.queue); i++ {
-		hook.debugf("sending queued message [%v/%v]", i+1, len(hook.queue))
-		if err := hook.send(formatEntry(hook.queue[i])); err != nil {
-			hook.warnf("failed to send queued message '%v'", hook.queue[i])
-		} else {
-			hook.queue = spliceLogEntry(hook.queue, uint(i))
-		}
-	}
-}
-
-// formatEntry outputs a raw data object that can be sent to hook.send
-func formatEntry(entry *logrus.Entry) map[string]interface{} {
+// addCustomDataToLog creates the data field in the passed in :log
+func addCustomDataToLog(log map[string]interface{}, entry *logrus.Entry) {
 	entryData := map[string]interface{}{}
 	for key, value := range entry.Data {
 		entryData[key] = value
 	}
-	data := map[string]interface{}{
-		constants.FieldData:      entryData,
+	log[constants.FieldData] = entryData
+}
+
+// addCallerDataToLog creates the file and function field in the passed in :log
+func addCallerDataToLog(log map[string]interface{}, entry *logrus.Entry) {
+	log[constants.FieldFile] = fmt.Sprintf("%s:%v", entry.Caller.File, entry.Caller.Line)
+	log[constants.FieldFunction] = entry.Caller.Function
+}
+
+// clearQueue clears the current log entry queue by sending all of them at
+// once. to run upon successful connection to fluentd
+func clearQueue(hook IHook) {
+	defer hook.trace("ended")
+	hook.trace("called")
+	queueLength := hook.getQueueLength()
+	for i := uint(0); i < queueLength; i++ {
+		hook.debugf("sending queued message [%v/%v]", i+1, queueLength)
+		queuedEntry := hook.getQueuedEntryAt(i)
+		logToSend := createLogFromEntry(queuedEntry)
+		if err := hook.send(logToSend); err != nil {
+			hook.warnf("failed to send queued message '%v'", logToSend)
+		} else {
+			hook.removeLogFromQueue(i)
+		}
+	}
+}
+
+// createBaseLogFromEntry creates a basic log entry that can be sent to hook.send
+func createBaseLogFromEntry(entry *logrus.Entry) map[string]interface{} {
+	return map[string]interface{}{
 		constants.FieldLevel:     entry.Level.String(),
 		constants.FieldMessage:   entry.Message,
 		constants.FieldTimestamp: entry.Time.UTC().Format(constants.TimestampFormat),
 	}
+}
+
+// createLogFromEntry outputs a raw data object that can be sent to hook.send
+func createLogFromEntry(entry *logrus.Entry) map[string]interface{} {
+	data := createBaseLogFromEntry((entry))
+	if entry.Data != nil {
+		addCustomDataToLog(data, entry)
+	}
 	if entry.Caller != nil {
-		data[constants.FieldFile] = fmt.Sprintf("%s:%v", entry.Caller.File, entry.Caller.Line)
-		data[constants.FieldFunction] = entry.Caller.Function
+		addCallerDataToLog(data, entry)
 	}
 	return data
 }
 
 // handleInitializationError defines the retry logic for initialize()
 func handleInitializationError(err error, hook *Hook) {
-	if hasNoRetryLimit(hook) || !hasReachedRetryLimit(hook) {
+	if hook.shouldRetry() {
 		hook.warnf("unable to initialize fluentd logger (attempt %v/%v): '%s'", hook.retryCount, hook.config.InitializeRetryCount, err)
 		hook.debugf("attempting again in %v...", hook.config.InitializeRetryInterval)
 		<-time.After(hook.config.InitializeRetryInterval)
@@ -56,18 +76,6 @@ func handleInitializationError(err error, hook *Hook) {
 		hook.warnf("following %v log entries could not be sent to fluentd: [\n%v\n]", len(hook.queue), hook.queue)
 		panic(err)
 	}
-}
-
-// hasReachedRetryLimit returns true if there are still retries left
-func hasReachedRetryLimit(hook *Hook) bool {
-	return hook.retryCount > hook.config.InitializeRetryCount
-}
-
-// hasNoRetryLimit returns true if the HookConfig.InitializeRetryCount property
-// is less than 0, which indicates that we should never stop trying to
-// reconnect to a FluentD service
-func hasNoRetryLimit(hook *Hook) bool {
-	return hook.config.InitializeRetryCount < 0
 }
 
 // initialize is a controller method that creates a fluent logger
@@ -91,11 +99,11 @@ func initialize(hook *Hook) {
 		panic(err)
 	}
 	hook.debugf("fluentd successfully initialized")
-	hook.send(map[string]interface{}{
-		constants.FieldLevel:     "debug",
-		constants.FieldMessage:   "fluentd initialized successfully",
-		constants.FieldTimestamp: time.Now().Format(constants.TimestampFormat),
-	})
+	hook.send(createBaseLogFromEntry(&logrus.Entry{
+		Level:   logrus.DebugLevel,
+		Message: "fluentd initialized successfully",
+		Time:    time.Now(),
+	}))
 	hook.isInitialising = false
 	if len(hook.queue) > 0 {
 		clearQueue(hook)

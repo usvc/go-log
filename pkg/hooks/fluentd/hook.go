@@ -33,6 +33,22 @@ type Hook struct {
 	retryCount int
 }
 
+type IHook interface {
+	Levels() []logrus.Level
+	Fire(*logrus.Entry) error
+	Close()
+	getQueuedEntryAt(uint) *logrus.Entry
+	getQueueLength() uint
+	removeLogFromQueue(uint)
+	shouldRetry() bool
+	send(map[string]interface{}) error
+	post(string, map[string]interface{})
+	trace(...interface{})
+	debugf(string, ...interface{})
+	warnf(string, ...interface{})
+	errorf(string, ...interface{})
+}
+
 // Levels implements the logrus.Hook interface
 func (hook *Hook) Levels() []logrus.Level {
 	defer hook.trace("ended")
@@ -51,7 +67,7 @@ func (hook *Hook) Fire(entry *logrus.Entry) error {
 		}
 		return nil
 	}
-	hook.send(formatEntry(entry))
+	hook.send(createLogFromEntry(entry))
 	return nil
 }
 
@@ -62,7 +78,32 @@ func (hook *Hook) Close() {
 	hook.instance.Close()
 }
 
-// send posts the data to the remote fluentd instance
+// getQueuedEntryAt retrieves the log entry at the index :index
+func (hook *Hook) getQueuedEntryAt(index uint) *logrus.Entry {
+	if uint(len(hook.queue)) <= index {
+		return nil
+	}
+	return hook.queue[index]
+}
+
+// getQueueLength returns the length of the queue
+func (hook *Hook) getQueueLength() uint {
+	return uint(len(hook.queue))
+}
+
+// removeLogFromQueue removes the log entry at index :index
+// from the queue
+func (hook *Hook) removeLogFromQueue(index uint) {
+	spliceLogEntry(hook.queue, index)
+}
+
+// shouldRetry returns true if there are still retries left
+func (hook *Hook) shouldRetry() bool {
+	return hook.config.InitializeRetryCount < 0 || 
+		hook.retryCount <= hook.config.InitializeRetryCount
+}
+
+// send formats and posts the data to the remote fluentd instance asynchronously
 func (hook *Hook) send(data map[string]interface{}) error {
 	defer hook.trace("ended")
 	hook.trace("called")
@@ -74,6 +115,7 @@ func (hook *Hook) send(data map[string]interface{}) error {
 	return nil
 }
 
+// post sends the data to the remote fluentd instance
 func (hook *Hook) post(level string, data map[string]interface{}) {
 	defer hook.trace("ended")
 	hook.trace("called")

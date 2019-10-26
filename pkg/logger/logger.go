@@ -2,12 +2,11 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/usvc/go-log/lib/utils"
 	formatters "github.com/usvc/go-log/pkg/formatters/logrus"
 )
 
 func New(formats ...string) *logrus.Logger {
-	format := utils.ParseVariadicString(formats, "text")
+	format := ParseVariadicString(formats, "text")
 	logger := logrus.New()
 	configureLogger(logger)
 	switch format {

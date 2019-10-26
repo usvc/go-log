@@ -1,4 +1,4 @@
-package utils
+package logger
 
 func ParseVariadicString(strings []string, defaultValue string) string {
 	if len(strings) > 0 {
